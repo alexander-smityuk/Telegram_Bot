@@ -1,6 +1,7 @@
 import config
 import telebot
-import exchange_rates
+import exchange_rates as rt
+import weather as wth
 
 
 bot = telebot.TeleBot(config.token)
@@ -8,19 +9,24 @@ bot = telebot.TeleBot(config.token)
 
 @bot.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
-    str = "Здравствуйте, хозяин!" + "\n" + "Я умею выполнять такие команды: " + "\n" + "/rates - курс валют" + "\n"
+    str = "Приветствую, Вас, хозяин!" + "\n"\
+          + "Я умею выполнять такие команды: " + "\n"\
+          + "/rates - курс валют" + "\n"\
+          + "/weather - текущая температура и влажность" + "\n"\
+          + "/help - справка"
     bot.send_message(message.chat.id, str)
 
 
 @bot.message_handler(commands=['rates'])
 def handle_rates(message):
-    rates = list()
-    rates = exchange_rates.get_rates()
-    for item in rates:
-        str1 = 'Валюта: ' + item['ccy'] + "\n"
-        str2 = 'Покупка: ' + item['buy'] + " грн" + "\n"
-        str3 = 'Продажа: ' + item['sale'] + " грн" + "\n"
-        bot.send_message(message.chat.id, str1 + " " + str2 + " " + str3)
+    bot.send_message(message.chat.id, rt.get_rates("USD"))
+    bot.send_message(message.chat.id, rt.get_rates("EUR"))
+    bot.send_message(message.chat.id, rt.get_rates("RUR"))
+
+
+@bot.message_handler(commands=['weather'])
+def handle_current_weather(message):
+    bot.send_message(message.chat.id, wth.get_current_weather())
 
 
 @bot.message_handler(func=lambda message: True, content_types=['text'])
